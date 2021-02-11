@@ -13,7 +13,7 @@ namespace Wkhtmltopdf.NetCore
         private readonly string _path;
 
         private const string DefaultPathWindows = @"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf";
-        private const string DefaultPathLinux = @"/usr/bin/wkhtmltopdf";
+        private const string DefaultPathLinux = @"/usr/local/bin/wkhtmltopdf";
         /// <summary>
         ///     Constructs new instance of <see cref="ExactPathProvider" />. Uses provided path as is.
         ///     save the environmet variable  = WKPDF

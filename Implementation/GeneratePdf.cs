@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using SER.RenderHtmltoString.NetCore.Interfaces;
 using Wkhtmltopdf.NetCore.Interfaces;
 
@@ -10,6 +12,8 @@ namespace Wkhtmltopdf.NetCore
     {
         private readonly IRazorViewToStringRenderer _engine;
         private readonly IWkhtmlDriver _wkhtmlDriver;
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly ILogger _logger;
         private IConvertOptions _convertOptions;
 
         /// <summary>
@@ -18,11 +22,15 @@ namespace Wkhtmltopdf.NetCore
         /// <param name="engine"><see cref="IRazorViewToStringRenderer"/>.</param>
         /// <param name="wkhtmlDriver"><see cref="IWkhtmlDriver"/>.</param>
         public GeneratePdf(
-            IRazorViewToStringRenderer engine, 
+            IRazorViewToStringRenderer engine,
+            IWebHostEnvironment hostingEnvironment,
+            ILogger<GeneratePdf> logger,
             IWkhtmlDriver wkhtmlDriver = null)
         {
+            _hostingEnvironment = hostingEnvironment;
             _engine = engine;
-            _wkhtmlDriver = wkhtmlDriver ?? new WkhtmlDriver();
+            _logger = logger;
+            _wkhtmlDriver = wkhtmlDriver ?? new WkhtmlDriver(_hostingEnvironment, logger: _logger);
             _convertOptions = new ConvertOptions();
         }
 
