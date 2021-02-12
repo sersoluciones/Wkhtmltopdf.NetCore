@@ -123,8 +123,8 @@ namespace Wkhtmltopdf.NetCore
 
             var wkhtmlPath = pathProvider.GetPath();
 
-            //Console.WriteLine($"--------------------- wkhtmlPath: {wkhtmlPath} ");
-            //Console.WriteLine($"--------------------- switches: {switches} ");
+            Console.WriteLine($"--------------------- wkhtmlPath: {wkhtmlPath} ");
+            Console.WriteLine($"--------------------- switches: {switches} ");
 
             var result = Shell.Term(wkhtmlPath, switches, html: html);
 
