@@ -104,5 +104,66 @@ namespace Wkhtml.Options
             }
             return result;
         }
+        
+        public static Response TermLinux(string wkhtmlPath, string switches, string html = "")
+        {
+            using var proc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = wkhtmlPath,
+                    Arguments = switches,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    RedirectStandardInput = true,
+                    CreateNoWindow = true
+                }
+            };
+
+            try
+            {
+                proc.Start();
+            }
+            catch (Exception e)
+            {
+                throw new WkhtmlDriverException($"Failed to start wkhtmltodpf at path {wkhtmlPath}.", e);
+            }
+
+            // generate PDF from given HTML string, not from URL
+            if (!string.IsNullOrEmpty(html))
+            {
+                using (var sIn = proc.StandardInput)
+                {
+                    sIn.WriteLine(html);
+                }
+            }
+
+            using var ms = new MemoryStream();
+            using (var sOut = proc.StandardOutput.BaseStream)
+            {
+                byte[] buffer = new byte[4096];
+                int read;
+
+                while ((read = sOut.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    ms.Write(buffer, 0, read);
+                }
+            }
+
+            string error = proc.StandardError.ReadToEnd();
+
+            if (ms.Length == 0)
+            {
+                throw new Exception(error);
+            }
+
+            proc.WaitForExit();
+            var result = new Response
+            {
+                bytes = ms.ToArray()
+            };
+            return result;
+        }
     }
 }

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<Version>1.1.1</Version>
+		<Version>1.1.2</Version>
 		<TargetFramework>net5.0</TargetFramework>
 		<Description>
 			This project implements the library wkhtmltopdf for asp net core and a view engine, working in windows, macos, linux and docker.

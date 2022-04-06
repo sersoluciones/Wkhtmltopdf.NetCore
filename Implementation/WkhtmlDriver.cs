@@ -70,16 +70,8 @@ namespace Wkhtmltopdf.NetCore
         /// <returns>PDF as byte array.</returns>
         private static byte[] Convert(IWebHostEnvironment hostingEnvironment, IWkhtmltopdfPathProvider pathProvider, string switches, string html, ILogger logger = null)
         {
-            string globalPath = "files/upload/pdf/";
-            string nameFile = Guid.NewGuid().ToString();
-            string sWebRootFolder = hostingEnvironment.WebRootPath;
-            var webRootPath = Path.Combine(sWebRootFolder, globalPath);
-
-            string inputPath = string.Format("{0}{1}", globalPath, $"{nameFile}.html");
-            inputPath = Path.Combine(sWebRootFolder, inputPath);
-
-            string outputPath = string.Format("{0}{1}", globalPath, $"{nameFile}.pdf");
-            outputPath = Path.Combine(sWebRootFolder, outputPath);
+            var inputPath = "";
+            var outputPath = "";
 
             // generate PDF from given HTML string, not from URL
             if (!string.IsNullOrEmpty(html))
@@ -94,12 +86,24 @@ namespace Wkhtmltopdf.NetCore
 
             switch (OS.GetCurrent())
             {
+                case "gnu":
                 case "win":
                     switches = "-q " + switches + " - - ";
 
                     break;
                 case "mac":
-                case "gnu":
+
+                    string globalPath = "files/upload/pdf/";
+                    string nameFile = Guid.NewGuid().ToString();
+                    string sWebRootFolder = hostingEnvironment.WebRootPath;
+                    var webRootPath = Path.Combine(sWebRootFolder, globalPath);
+
+                    inputPath = string.Format("{0}{1}", globalPath, $"{nameFile}.html");
+                    inputPath = Path.Combine(sWebRootFolder, inputPath);
+
+                    outputPath = string.Format("{0}{1}", globalPath, $"{nameFile}.pdf");
+                    outputPath = Path.Combine(sWebRootFolder, outputPath);
+
                     if (!Directory.Exists(webRootPath))
                     {
                         logger?.LogInformation("That path not exists already.");
@@ -126,7 +130,7 @@ namespace Wkhtmltopdf.NetCore
             Console.WriteLine($"--------------------- wkhtmlPath: {wkhtmlPath} ");
             Console.WriteLine($"--------------------- switches: {switches} ");
 
-            var result = Shell.Term(wkhtmlPath, switches, html: html);
+            Response result = OS.IsWin() ? Shell.Term(wkhtmlPath, switches, html: html) : Shell.TermLinux(wkhtmlPath, switches, html: html);
 
             logger?.LogInformation(result.code.ToString());
             if (result.code == 0)
@@ -140,7 +144,7 @@ namespace Wkhtmltopdf.NetCore
             }
 
             /// delete file
-            if (!OS.IsWin())
+            if (!OS.IsWin() && !string.IsNullOrEmpty(inputPath) && !string.IsNullOrEmpty(outputPath))
             {
                 if (File.Exists(inputPath))
                     File.Delete(inputPath);
